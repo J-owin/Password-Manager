@@ -13,11 +13,17 @@ const Manager = () => {
   const [passwordArray, setPaswordArray] = useState([])
   const [isEditing, setIsEditing] = useState(false)
 
+  const getPasswords = async() => {
+    let req = await fetch("http://localhost:3000/")
+    let passwords = await req.json()
+    console.log(passwords)
+    setPaswordArray(passwords)
+  }
+  
+
   useEffect(() => {
-    let passwords = localStorage.getItem("passwords")
-    if (passwords) {
-      setPaswordArray(JSON.parse(passwords))
-    }
+    getPasswords()
+    
 
   }, [])
 
@@ -47,13 +53,15 @@ const Manager = () => {
       passwordRef.current.type = "password"
     }
   }
-  const savePassword = () => {
+  const savePassword = async () => {
     if(form.site.length>3 && form.password.length>3 && form.username.length>3 ){
+      await fetch("http://localhost:3000/",{method: "DELETE",headers:{"Content-type":"application/json"},body:JSON.stringify({id:form.id})})
 
       let newPassword = { ...form, id: uuidv4() }
       setPaswordArray([...passwordArray, newPassword])
-      localStorage.setItem("passwords", JSON.stringify([...passwordArray, newPassword]))
-      console.log([...passwordArray, form])
+      // localStorage.setItem("passwords", JSON.stringify([...passwordArray, newPassword]))
+      await fetch("http://localhost:3000/",{method: "POST",headers:{"Content-type":"application/json"},body:JSON.stringify(newPassword)})
+      // console.log([...passwordArray, form])
       setform({ site: "", username: "", password: "" })
       if (isEditing) {
       toast('password edited!', {
@@ -98,14 +106,16 @@ const Manager = () => {
   }
 
   }
-  const deletePassword = (id) => {
+  const deletePassword = async (id) => {
 
     console.log("Deleting password with id", id)
     let c = confirm("Do you want to delete this password?")
     if (c) {
 
+
       setPaswordArray(passwordArray.filter(item => item.id !== id))
-      localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item => item.id !== id)))
+      let res= await fetch("http://localhost:3000/",{method: "DELETE",headers:{"Content-type":"application/json"},body:JSON.stringify({ id})})
+      // localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item => item.id !== id)))
       toast('password deleted!', {
         position: "top-right",
         autoClose: 5000,
@@ -122,7 +132,7 @@ const Manager = () => {
   const editPassword = (id) => {
 
     console.log("Editing password with id", id)
-    setform(passwordArray.filter(i => i.id === id)[0])
+    setform({...passwordArray.filter(i => i.id === id)[0],id:id})
     setPaswordArray(passwordArray.filter(item => item.id !== id))
     setIsEditing(true)
 
@@ -148,7 +158,7 @@ const Manager = () => {
         transition={Bounce}
       />
 
-      <div className="absolute inset-0 -z-10 h-full w-full bg-green-50 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]">
+      <div className=" absolute inset-0 -z-10 h-full w-full bg-green-50 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]">
         <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px]"></div>
       </div>
 
@@ -245,7 +255,7 @@ const Manager = () => {
 
                     <td className='py-2 border border-white text-center w-32'>
                       <div className='flex items-center justify-center gap-1' onClick={() => copyText(item.password)}>
-                        <span>{item.password}</span>
+                        <span>{"*".repeat(item.password.length)}</span>
 
                         <div className='size-7 cursor-pointer'>
                           <lord-icon

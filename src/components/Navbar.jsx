@@ -20,9 +20,9 @@ const Navbar = () => {
             <a className='hover:font-bold' href='#'>Contact</a>
           </li>
         </ul>} */}
-        <button className='text-white bg-green-700 rounded-full my-5 flex justify-between items-center ring-green-300 ring-1 cursor-pointer  hover:bg-green-600'>
+        <button className='text-white bg-green-700 rounded-full my-5 flex justify-between items-center ring-green-300 ring-1 cursor-pointer 1 hover:bg-green-600'>
           <img className='invert w-10 p-1' src="github.svg" alt="" />
-          <span className='font-bold px-2'>Github</span>
+          <span className='font-bold px-2'><a href='https://github.com/J-owin/Password-Manager' target='_blank'>Github</a></span>
         </button>
       </div>
     </nav>
